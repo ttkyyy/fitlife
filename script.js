@@ -1,173 +1,158 @@
-// === ПОСЕЩЕНИЯ ГРАБЛЕВА ЕГОРА ===
-let visits = [
-  { date: '2025-05-05', time: '18:30 – 19:30' },
-  { date: '2025-05-08', time: '19:00 – 20:00' },
-  { date: '2025-05-10', time: '18:45 – 19:45' },
-  { date: '2025-05-12', time: '12:15 – 13:15' },
-  { date: '2025-05-15', time: '19:20 – 20:20' },
-  { date: '2025-06-02', time: '18:10 – 19:10' },
-  { date: '2025-06-05', time: '19:05 – 20:05' },
-  { date: '2025-07-10', time: '18:30 – 19:30' },
-  { date: '2025-08-20', time: '19:00 – 20:00' },
-];
+// === Таймер для "Осеннего фитнес-марафона" ===
+function startCountdown() {
+  const countdownEl = document.getElementById("countdown");
+  if (!countdownEl) return;
 
-// === ТРЕНЕРЫ ===
-const trainers = [
-  { name: 'Алексей', category: 'strength', desc: 'Силовые, бодибилдинг, пауэрлифтинг. 10 лет опыта.' },
-  { name: 'Марина', category: 'functional', desc: 'Функциональный тренинг, реабилитация, осанка.' },
-  { name: 'Дмитрий', category: 'cardio', desc: 'Кардио, кроссфит, выносливость. Подготовка к соревнованиям.' },
-  { name: 'Елена', category: 'yoga', desc: 'Йога, пилатес, растяжка. Успокаивает, но не прощает.' },
-  { name: 'Сергей', category: 'personal', desc: 'Персональные тренировки, составление планов.' },
-  { name: 'Анна', category: 'group', desc: 'Групповые занятия, зарядка, мотивация.' },
-  { name: 'Игорь', category: 'strength', desc: 'Жим, присед, становая. Только серьёзные цели.' },
-  { name: 'Ольга', category: 'functional', desc: 'TRX, петли, баланс. Для тех, кто хочет двигаться свободно.' },
-  { name: 'Виктор', category: 'cardio', desc: 'Бег, велосипед, интервалы. Выносливость — это привычка.' },
-  { name: 'Татьяна', category: 'yoga', desc: 'Хатха, виньяса, медитация. Тело и разум в равновесии.' },
-  { name: 'Никита', category: 'personal', desc: 'Индивидуальный подход, питание, прогресс.' },
-  { name: 'Ксения', category: 'group', desc: 'Зарядка, танцы, энергия. Каждый найдёт своё.' },
-  { name: 'Павел', category: 'strength', desc: 'Масса, сила, дисциплина. Работаю только с мотивированными.' },
-  { name: 'Алёна', category: 'functional', desc: 'Мобильность, координация, здоровье. Для всех возрастов.' },
-];
+  const deadline = new Date("2025-08-31T23:59:59").getTime();
 
-// Текущая дата
-let currentDate = new Date();
+  const update = () => {
+    const now = new Date().getTime();
+    const diff = deadline - now;
 
-// Показываем нужную вкладку
-function showTab(tabId) {
-  document.querySelectorAll('.tab').forEach(tab => {
-    tab.classList.add('hidden');
-  });
-  document.getElementById(tabId).classList.remove('hidden');
+    if (diff <= 0) {
+      countdownEl.textContent = "Завершено";
+      return;
+    }
 
-  if (tabId === 'profile') {
-    renderCalendar();
-  }
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+    const mins = Math.floor((diff / (1000 * 60)) % 60);
 
-  if (tabId === 'trainers') {
-    renderTrainers('all');
-  }
+    countdownEl.textContent = `${days}д ${hours}ч ${mins}м`;
+  };
+
+  update();
+  setInterval(update, 60000);
+}
+startCountdown();
+
+
+// === Профиль: модальное окно ===
+function toggleProfile() {
+  document.getElementById("profileModal").classList.toggle("hidden");
 }
 
-// Рендерим календарь
-function renderCalendar() {
-  const title = document.getElementById('calendar-title');
-  const datesContainer = document.getElementById('calendar-dates');
 
-  const year = currentDate.getFullYear();
-  const month = currentDate.getMonth();
-  title.textContent = new Date(year, month).toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' });
+// === Календарь ===
+let currentMonth = new Date().getMonth();
+let currentYear = new Date().getFullYear();
 
-  datesContainer.innerHTML = '';
+/*
+  Здесь можно самому задавать даты посещений.
+  Формат: "YYYY-MM-DD": "Комментарий"
+*/
+let visits = {
+  "2025-08-04": " 19:00 - 19:45",
+  "2025-08-06": " 19:00 - 19:45",
+  "2025-08-08": " 19:00 - 19:45",
+  "2025-08-11": " 19:00 - 19:45",
+  "2025-08-13": " 19:00 - 19:45",
+  "2025-08-15": " 19:00 - 19:45",
+  "2025-08-18": " 19:00 - 19:45",
+  "2025-08-20": " 19:00 - 19:45",
+  "2025-08-22": " 19:00 - 19:45",
+  "2025-08-25": " 19:00 - 19:45",
+  "2025-08-27": " 19:00 - 19:45",
+  "2025-08-29": " 19:00 - 19:45"
+};
 
-  const firstDay = new Date(year, month, 1).getDay();
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
+function renderCalendar(month = currentMonth, year = currentYear) {
+  const datesContainer = document.getElementById("calendar-dates");
+  const title = document.getElementById("calendar-title");
+  const visitsCount = document.getElementById("visits-count");
 
-  const offset = firstDay === 0 ? 6 : firstDay - 1;
-  for (let i = 0; i < offset; i++) {
-    const empty = document.createElement('div');
-    empty.classList.add('day', 'empty');
+  if (!datesContainer || !title) return;
+
+  const date = new Date(year, month, 1);
+  const monthName = date.toLocaleString("ru-RU", { month: "long" });
+  title.textContent = `${monthName} ${year}`;
+
+  datesContainer.innerHTML = "";
+
+  let firstDay = date.getDay();
+  if (firstDay === 0) firstDay = 7; // воскресенье в конец
+
+  for (let i = 1; i < firstDay; i++) {
+    const empty = document.createElement("div");
+    empty.classList.add("empty");
     datesContainer.appendChild(empty);
   }
 
-  for (let day = 1; day <= daysInMonth; day++) {
-    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    const dayEl = document.createElement('div');
-    dayEl.classList.add('day');
-    dayEl.textContent = day;
+  const lastDate = new Date(year, month + 1, 0).getDate();
+  let count = 0;
 
-    const visit = visits.find(v => v.date === dateStr);
-    if (visit) {
-      dayEl.classList.add('has-workout');
-      dayEl.title = visit.time;
+  for (let d = 1; d <= lastDate; d++) {
+    const day = document.createElement("div");
+    day.textContent = d;
 
-      dayEl.addEventListener('mouseenter', (e) => {
-        const tooltip = document.getElementById('tooltip');
-        tooltip.textContent = `Время: ${visit.time}`;
-        tooltip.style.left = `${e.pageX + 10}px`;
-        tooltip.style.top = `${e.pageY + 10}px`;
-        tooltip.classList.add('show');
-      });
-
-      dayEl.addEventListener('mouseleave', () => {
-        document.getElementById('tooltip').classList.remove('show');
-      });
-
-      dayEl.addEventListener('click', () => {
-        alert(`Дата: ${dateStr}\nВы посетили зал с ${visit.time}`);
-      });
+    let key = `${year}-${String(month + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+    if (visits[key]) {
+      day.classList.add("visited");
+      day.title = visits[key]; // подсказка при наведении
+      count++;
     }
 
-    datesContainer.appendChild(dayEl);
+    datesContainer.appendChild(day);
+  }
+
+  if (visitsCount) {
+    visitsCount.textContent = count;
   }
 }
 
-// Переключение месяцев
 function prevMonth() {
-  currentDate.setMonth(currentDate.getMonth() - 1);
-  renderCalendar();
+  currentMonth--;
+  if (currentMonth < 0) {
+    currentMonth = 11;
+    currentYear--;
+  }
+  renderCalendar(currentMonth, currentYear);
 }
 
 function nextMonth() {
-  currentDate.setMonth(currentDate.getMonth() + 1);
-  renderCalendar();
-}
-
-// Фильтр тренеров
-function filterTrainers(category) {
-  renderTrainers(category);
-
-  // Обновляем кнопки фильтра
-  document.querySelectorAll('.filter-btn').forEach(btn => {
-    btn.classList.remove('active');
-  });
-  const activeBtn = document.querySelector(`.filter-btn[onclick="filterTrainers('${category}')"]`);
-  if (activeBtn) activeBtn.classList.add('active');
-}
-
-// Рендерим тренеров
-function renderTrainers(category) {
-  const container = document.getElementById('trainers-list');
-  container.innerHTML = '';
-
-  const filtered = category === 'all'
-    ? trainers
-    : trainers.filter(t => t.category === category);
-
-  filtered.forEach(t => {
-    const card = document.createElement('div');
-    card.classList.add('trainer-card');
-    card.innerHTML = `
-      <h3>${t.name}</h3>
-      <div class="category">${getCategoryLabel(t.category)}</div>
-      <p>${t.desc}</p>
-    `;
-    container.appendChild(card);
-  });
-}
-
-// Названия категорий
-function getCategoryLabel(category) {
-  const labels = {
-    strength: 'Силовые',
-    functional: 'Функциональный',
-    yoga: 'Йога и растяжка',
-    cardio: 'Кардио',
-    personal: 'Персональные',
-    group: 'Групповые'
-  };
-  return labels[category] || category;
-}
-
-// Автоматический вход
-function autoLogin() {
-  const usernameEl = document.getElementById('username');
-  if (usernameEl) {
-    usernameEl.textContent = 'Граблев Егор';
+  currentMonth++;
+  if (currentMonth > 11) {
+    currentMonth = 0;
+    currentYear++;
   }
+  renderCalendar(currentMonth, currentYear);
 }
 
-// При загрузке
-window.onload = function () {
-  autoLogin();
-  showTab('home');
-};
+// первый запуск
+renderCalendar();
+
+
+// === Тренеры ===
+const trainers = [
+  { name: "Алексей", spec: "strength", desc: "Силовые тренировки, опыт 5 лет" },
+  { name: "Марина", spec: "functional", desc: "Функционал и стретчинг" },
+  { name: "Игорь", spec: "yoga", desc: "Йога, дыхательные практики" },
+  { name: "Светлана", spec: "strength", desc: "Бодибилдинг и питание" },
+];
+
+function renderTrainers(filter = "all") {
+  const container = document.getElementById("trainers-list");
+  if (!container) return;
+
+  container.innerHTML = "";
+  trainers
+    .filter(t => filter === "all" || t.spec === filter)
+    .forEach(t => {
+      const card = document.createElement("div");
+      card.classList.add("trainer-card");
+      card.innerHTML = `
+        <h3>${t.name}</h3>
+        <p>${t.desc}</p>
+      `;
+      container.appendChild(card);
+    });
+}
+
+function filterTrainers(category) {
+  document.querySelectorAll(".filter-btn").forEach(btn => btn.classList.remove("active"));
+  renderTrainers(category);
+  event.target.classList.add("active");
+}
+
+// первый рендер
+renderTrainers();
